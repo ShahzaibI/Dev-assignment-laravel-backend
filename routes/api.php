@@ -18,7 +18,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
 
-    // Pagess
+    // Pages
     Route::get('/pages', [PageController::class, 'index'])->middleware('permission:pages.list');
     Route::post('/pages', [PageController::class, 'store'])->middleware('permission:pages.create');
     Route::get('/pages/{page}', [PageController::class, 'show'])->middleware('permission:pages.list');
