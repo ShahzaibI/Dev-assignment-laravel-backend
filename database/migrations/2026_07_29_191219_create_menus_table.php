@@ -9,8 +9,8 @@ return new class extends Migration {
     {
         Schema::create('menus', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
             $table->foreignId('parent_id')->nullable()->constrained('menus')->nullOnDelete();
+            $table->string('name');
             $table->integer('sort_order')->default(0);
             $table->timestamps();
         });

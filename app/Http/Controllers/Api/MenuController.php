@@ -4,15 +4,17 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MenuRequest;
-use App\Http\Resources\MenuResource;
+use App\Http\Requests\MenuReorderRequest;
 use App\Models\Menu;
+use App\Services\MenuService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 #[OA\Tag(name: 'Menus', description: 'Menu management')]
 class MenuController extends Controller
 {
+    public function __construct(private MenuService $menuService) {}
+
     #[OA\Get(
         path: '/api/menus',
         summary: 'List all menus (nested tree)',
@@ -22,8 +24,11 @@ class MenuController extends Controller
     )]
     public function index(): JsonResponse
     {
-        $menus = Menu::with('children')->whereNull('parent_id')->orderBy('sort_order')->get();
-        return api_response(MenuResource::collection($menus));
+        try {
+            return api_response($this->menuService->tree());
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 
     #[OA\Post(
@@ -46,8 +51,11 @@ class MenuController extends Controller
     )]
     public function store(MenuRequest $request): JsonResponse
     {
-        $menu = Menu::create($request->validated());
-        return api_response(new MenuResource($menu), 'Menu created', 201);
+        try {
+            return api_response($this->menuService->create($request->validated()), 'Menu created', 201);
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 
     #[OA\Put(
@@ -67,8 +75,11 @@ class MenuController extends Controller
     )]
     public function update(MenuRequest $request, Menu $menu): JsonResponse
     {
-        $menu->update($request->validated());
-        return api_response(new MenuResource($menu), 'Menu updated');
+        try {
+            return api_response($this->menuService->update($menu, $request->validated()), 'Menu updated');
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 
     #[OA\Delete(
@@ -81,8 +92,12 @@ class MenuController extends Controller
     )]
     public function destroy(Menu $menu): JsonResponse
     {
-        $menu->delete();
-        return api_response(null, 'Menu deleted');
+        try {
+            $this->menuService->delete($menu);
+            return api_response(null, 'Menu deleted');
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 
     #[OA\Put(
@@ -104,22 +119,13 @@ class MenuController extends Controller
         ),
         responses: [new OA\Response(response: 200, description: 'Menus reordered')]
     )]
-    public function reorder(Request $request): JsonResponse
+    public function reorder(MenuReorderRequest $request): JsonResponse
     {
-        $request->validate([
-            'items'              => ['required', 'array'],
-            'items.*.id'         => ['required', 'exists:menus,id'],
-            'items.*.sort_order' => ['required', 'integer'],
-            'items.*.parent_id'  => ['nullable', 'exists:menus,id'],
-        ]);
-
-        foreach ($request->items as $item) {
-            Menu::where('id', $item['id'])->update([
-                'sort_order' => $item['sort_order'],
-                'parent_id'  => $item['parent_id'] ?? null,
-            ]);
+        try {
+            $this->menuService->reorder($request->validated()['items']);
+            return api_response(null, 'Menus reordered');
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
         }
-
-        return api_response(null, 'Menus reordered');
     }
 }

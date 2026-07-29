@@ -4,15 +4,16 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
-use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Hash;
 use OpenApi\Attributes as OA;
 
 #[OA\Tag(name: 'Users', description: 'User management')]
 class UserController extends Controller
 {
+    public function __construct(private UserService $userService) {}
+
     #[OA\Get(
         path: '/api/users',
         summary: 'List all users',
@@ -22,7 +23,11 @@ class UserController extends Controller
     )]
     public function index(): JsonResponse
     {
-        return api_response(UserResource::collection(User::all()));
+        try {
+            return api_response($this->userService->all());
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 
     #[OA\Post(
@@ -46,14 +51,11 @@ class UserController extends Controller
     )]
     public function store(UserRequest $request): JsonResponse
     {
-        $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-        $user->assignRole($request->role);
-
-        return api_response(new UserResource($user), 'User created', 201);
+        try {
+            return api_response($this->userService->create($request->validated()), 'User created', 201);
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 
     #[OA\Get(
@@ -66,7 +68,11 @@ class UserController extends Controller
     )]
     public function show(User $user): JsonResponse
     {
-        return api_response(new UserResource($user));
+        try {
+            return api_response($this->userService->show($user));
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 
     #[OA\Put(
@@ -87,14 +93,11 @@ class UserController extends Controller
     )]
     public function update(UserRequest $request, User $user): JsonResponse
     {
-        $user->update(array_filter([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => $request->password ? Hash::make($request->password) : null,
-        ]));
-        $user->syncRoles([$request->role]);
-
-        return api_response(new UserResource($user), 'User updated');
+        try {
+            return api_response($this->userService->update($user, $request->validated()), 'User updated');
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 
     #[OA\Delete(
@@ -107,7 +110,11 @@ class UserController extends Controller
     )]
     public function destroy(User $user): JsonResponse
     {
-        $user->delete();
-        return api_response(null, 'User deleted');
+        try {
+            $this->userService->delete($user);
+            return api_response(null, 'User deleted');
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 }

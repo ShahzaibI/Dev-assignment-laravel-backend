@@ -4,17 +4,17 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PageRequest;
-use App\Http\Resources\PageResource;
 use App\Models\Page;
+use App\Services\PageService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
 #[OA\Tag(name: 'Pages', description: 'Page management')]
 class PageController extends Controller
 {
+    public function __construct(private PageService $pageService) {}
+
     #[OA\Get(
         path: '/api/pages',
         summary: 'List pages (paginated, searchable, filterable)',
@@ -31,14 +31,11 @@ class PageController extends Controller
     )]
     public function index(Request $request): JsonResponse
     {
-        $query = Page::with(['menu', 'creator', 'updater'])
-            ->when($request->trashed, fn($q) => $q->onlyTrashed())
-            ->when($request->search,  fn($q, $s) => $q->where('title', 'like', "%{$s}%"))
-            ->when($request->menu_id, fn($q, $m) => $q->where('menu_id', $m))
-            ->when($request->status,  fn($q, $s) => $q->where('status', $s))
-            ->latest();
-
-        return api_response(PageResource::collection($query->paginate($request->integer('per_page', 15)))->response()->getData(true));
+        try {
+            return api_response($this->pageService->list($request));
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 
     #[OA\Post(
@@ -67,16 +64,11 @@ class PageController extends Controller
     )]
     public function store(PageRequest $request): JsonResponse
     {
-        $data = $request->validated();
-        $data['created_by'] = $request->user()->id;
-        $data['slug'] = $data['slug'] ?? Str::slug($data['title']);
-
-        if ($request->hasFile('cover_image')) {
-            $data['cover_image'] = $request->file('cover_image')->store('covers', 'public');
+        try {
+            return api_response($this->pageService->create($request->validated(), $request->file('cover_image'), $request->user()->id), 'Page created', 201);
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
         }
-
-        $page = Page::create($data);
-        return api_response(new PageResource($page->load(['menu', 'creator'])), 'Page created', 201);
     }
 
     #[OA\Get(
@@ -89,7 +81,11 @@ class PageController extends Controller
     )]
     public function show(Page $page): JsonResponse
     {
-        return api_response(new PageResource($page->load(['menu', 'creator', 'updater'])));
+        try {
+            return api_response($this->pageService->show($page));
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 
     #[OA\Post(
@@ -102,11 +98,11 @@ class PageController extends Controller
             content: new OA\MediaType(
                 mediaType: 'multipart/form-data',
                 schema: new OA\Schema(properties: [
-                    new OA\Property(property: '_method',      type: 'string', example: 'PUT'),
-                    new OA\Property(property: 'title',        type: 'string'),
-                    new OA\Property(property: 'body',         type: 'string'),
-                    new OA\Property(property: 'status',       type: 'string', enum: ['draft', 'published']),
-                    new OA\Property(property: 'cover_image',  type: 'string', format: 'binary'),
+                    new OA\Property(property: '_method',     type: 'string', example: 'PUT'),
+                    new OA\Property(property: 'title',       type: 'string'),
+                    new OA\Property(property: 'body',        type: 'string'),
+                    new OA\Property(property: 'status',      type: 'string', enum: ['draft', 'published']),
+                    new OA\Property(property: 'cover_image', type: 'string', format: 'binary'),
                 ])
             )
         ),
@@ -114,16 +110,11 @@ class PageController extends Controller
     )]
     public function update(PageRequest $request, Page $page): JsonResponse
     {
-        $data = $request->validated();
-        $data['updated_by'] = $request->user()->id;
-
-        if ($request->hasFile('cover_image')) {
-            if ($page->cover_image) Storage::disk('public')->delete($page->cover_image);
-            $data['cover_image'] = $request->file('cover_image')->store('covers', 'public');
+        try {
+            return api_response($this->pageService->update($page, $request->validated(), $request->file('cover_image'), $request->user()->id), 'Page updated');
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
         }
-
-        $page->update($data);
-        return api_response(new PageResource($page->load(['menu', 'creator', 'updater'])), 'Page updated');
     }
 
     #[OA\Delete(
@@ -136,8 +127,12 @@ class PageController extends Controller
     )]
     public function destroy(Page $page): JsonResponse
     {
-        $page->delete();
-        return api_response(null, 'Page deleted');
+        try {
+            $this->pageService->delete($page);
+            return api_response(null, 'Page deleted');
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 
     #[OA\Post(
@@ -150,8 +145,10 @@ class PageController extends Controller
     )]
     public function restore(int $id): JsonResponse
     {
-        $page = Page::onlyTrashed()->findOrFail($id);
-        $page->restore();
-        return api_response(new PageResource($page), 'Page restored');
+        try {
+            return api_response($this->pageService->restore($id), 'Page restored');
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 }

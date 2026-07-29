@@ -5,14 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RoleRequest;
 use App\Http\Resources\RoleResource;
+use App\Services\RoleService;
 use Illuminate\Http\JsonResponse;
 use OpenApi\Attributes as OA;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 #[OA\Tag(name: 'Roles', description: 'Role & permission management')]
 class RoleController extends Controller
 {
+    public function __construct(private RoleService $roleService) {}
+
     #[OA\Get(
         path: '/api/roles',
         summary: 'List all roles with permissions',
@@ -22,7 +24,11 @@ class RoleController extends Controller
     )]
     public function index(): JsonResponse
     {
-        return api_response(RoleResource::collection(Role::with('permissions')->get()));
+        try {
+            return api_response(RoleResource::collection($this->roleService->all()));
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 
     #[OA\Get(
@@ -34,7 +40,11 @@ class RoleController extends Controller
     )]
     public function permissions(): JsonResponse
     {
-        return api_response(Permission::all()->pluck('name'));
+        try {
+            return api_response($this->roleService->allPermissions());
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 
     #[OA\Post(
@@ -56,11 +66,12 @@ class RoleController extends Controller
     )]
     public function store(RoleRequest $request): JsonResponse
     {
-        $role = Role::create(['name' => $request->name, 'guard_name' => 'sanctum']);
-        if ($request->permissions) {
-            $role->syncPermissions($request->permissions);
+        try {
+            $role = $this->roleService->create($request->name, $request->permissions ?? []);
+            return api_response(new RoleResource($role), 'Role created', 201);
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
         }
-        return api_response(new RoleResource($role->load('permissions')), 'Role created', 201);
     }
 
     #[OA\Put(
@@ -79,9 +90,12 @@ class RoleController extends Controller
     )]
     public function update(RoleRequest $request, Role $role): JsonResponse
     {
-        $role->update(['name' => $request->name]);
-        $role->syncPermissions($request->permissions ?? []);
-        return api_response(new RoleResource($role->load('permissions')), 'Role updated');
+        try {
+            $role = $this->roleService->update($role, $request->name, $request->permissions ?? []);
+            return api_response(new RoleResource($role), 'Role updated');
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 
     #[OA\Delete(
@@ -94,7 +108,11 @@ class RoleController extends Controller
     )]
     public function destroy(Role $role): JsonResponse
     {
-        $role->delete();
-        return api_response(null, 'Role deleted');
+        try {
+            $this->roleService->delete($role);
+            return api_response(null, 'Role deleted');
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 }

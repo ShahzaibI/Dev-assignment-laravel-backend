@@ -9,13 +9,13 @@ return new class extends Migration {
     {
         Schema::create('pages', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('menu_id')->nullable()->constrained('menus')->nullOnDelete();
             $table->string('title');
             $table->string('slug')->unique();
             $table->longText('body');
             $table->string('cover_image')->nullable();
             $table->enum('status', ['draft', 'published'])->default('draft');
             $table->timestamp('publish_date')->nullable();
-            $table->foreignId('menu_id')->nullable()->constrained('menus')->nullOnDelete();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->softDeletes();

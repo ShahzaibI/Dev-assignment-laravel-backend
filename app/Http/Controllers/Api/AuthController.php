@@ -4,14 +4,15 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\User;
+use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Hash;
 use OpenApi\Attributes as OA;
 
 #[OA\Tag(name: 'Auth', description: 'Authentication')]
 class AuthController extends Controller
 {
+    public function __construct(private AuthService $authService) {}
+
     #[OA\Post(
         path: '/api/login',
         summary: 'Login and receive a Sanctum token',
@@ -33,24 +34,17 @@ class AuthController extends Controller
     )]
     public function login(LoginRequest $request): JsonResponse
     {
-        $user = User::where('email', $request->email)->first();
+        try {
+            $result = $this->authService->login($request->email, $request->password);
 
-        if (! $user || ! Hash::check($request->password, $user->password)) {
-            return api_response(null, 'Invalid credentials', 401);
+            if (! $result['success']) {
+                return api_response(null, 'Invalid credentials', 401);
+            }
+
+            return api_response(['token' => $result['token'], 'user' => $result['user']], 'Login successful');
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
         }
-
-        $token = $user->createToken('api-token')->plainTextToken;
-
-        return api_response([
-            'token' => $token,
-            'user'  => [
-                'id'          => $user->id,
-                'name'        => $user->name,
-                'email'       => $user->email,
-                'roles'       => $user->getRoleNames(),
-                'permissions' => $user->getAllPermissions()->pluck('name'),
-            ],
-        ], 'Login successful');
     }
 
     #[OA\Post(
@@ -62,8 +56,12 @@ class AuthController extends Controller
     )]
     public function logout(): JsonResponse
     {
-        request()->user()->currentAccessToken()->delete();
-        return api_response(null, 'Logged out');
+        try {
+            request()->user()->currentAccessToken()->delete();
+            return api_response(null, 'Logged out');
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 
     #[OA\Get(
@@ -75,13 +73,10 @@ class AuthController extends Controller
     )]
     public function me(): JsonResponse
     {
-        $user = request()->user();
-        return api_response([
-            'id'          => $user->id,
-            'name'        => $user->name,
-            'email'       => $user->email,
-            'roles'       => $user->getRoleNames(),
-            'permissions' => $user->getAllPermissions()->pluck('name'),
-        ]);
+        try {
+            return api_response($this->authService->formatUser(request()->user()));
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 }

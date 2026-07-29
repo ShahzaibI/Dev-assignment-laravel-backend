@@ -5,14 +5,15 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MenuResource;
 use App\Http\Resources\PageResource;
-use App\Models\Menu;
-use App\Models\Page;
+use App\Services\PublicService;
 use Illuminate\Http\JsonResponse;
 use OpenApi\Attributes as OA;
 
 #[OA\Tag(name: 'Public', description: 'Public endpoints (no auth required)')]
 class PublicController extends Controller
 {
+    public function __construct(private PublicService $publicService) {}
+
     #[OA\Get(
         path: '/api/public/menus',
         summary: 'Get public menu tree with published pages',
@@ -21,11 +22,11 @@ class PublicController extends Controller
     )]
     public function menus(): JsonResponse
     {
-        $menus = Menu::with(['children', 'pages' => function ($q) {
-            $q->published()->select('id', 'title', 'slug', 'menu_id', 'cover_image');
-        }])->whereNull('parent_id')->orderBy('sort_order')->get();
-
-        return api_response(MenuResource::collection($menus));
+        try {
+            return api_response(MenuResource::collection($this->publicService->menuTree()));
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 
     #[OA\Get(
@@ -40,11 +41,12 @@ class PublicController extends Controller
     )]
     public function page(string $slug): JsonResponse
     {
-        $page = Page::with(['menu', 'creator'])
-            ->published()
-            ->where('slug', $slug)
-            ->firstOrFail();
-
-        return api_response(new PageResource($page));
+        try {
+            return api_response(new PageResource($this->publicService->publishedPage($slug)));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException) {
+            return api_response(null, 'Page not found', 404);
+        } catch (\Throwable $e) {
+            return api_response(null, $e->getMessage(), 500);
+        }
     }
 }
