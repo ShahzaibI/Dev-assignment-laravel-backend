@@ -90,7 +90,7 @@ class PageController extends Controller
 
     #[OA\Post(
         path: '/api/pages/{id}',
-        summary: 'Update a page (POST with _method=PUT for file upload)',
+        summary: 'Update a page',
         security: [['sanctum' => []]],
         tags: ['Pages'],
         parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
@@ -98,11 +98,12 @@ class PageController extends Controller
             content: new OA\MediaType(
                 mediaType: 'multipart/form-data',
                 schema: new OA\Schema(properties: [
-                    new OA\Property(property: '_method',     type: 'string', example: 'PUT'),
-                    new OA\Property(property: 'title',       type: 'string'),
-                    new OA\Property(property: 'body',        type: 'string'),
-                    new OA\Property(property: 'status',      type: 'string', enum: ['draft', 'published']),
-                    new OA\Property(property: 'cover_image', type: 'string', format: 'binary'),
+                    new OA\Property(property: 'title',        type: 'string'),
+                    new OA\Property(property: 'body',         type: 'string'),
+                    new OA\Property(property: 'status',       type: 'string', enum: ['draft', 'published']),
+                    new OA\Property(property: 'publish_date', type: 'string', format: 'date-time'),
+                    new OA\Property(property: 'menu_id',      type: 'integer'),
+                    new OA\Property(property: 'cover_image',  type: 'string', format: 'binary'),
                 ])
             )
         ),
@@ -147,6 +148,8 @@ class PageController extends Controller
     {
         try {
             return api_response($this->pageService->restore($id), 'Page restored');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException) {
+            return api_response(null, 'Page not found or has not been deleted.', 404);
         } catch (\Throwable $e) {
             return api_response(null, $e->getMessage(), 500);
         }

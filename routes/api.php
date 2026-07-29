@@ -22,8 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/pages', [PageController::class, 'index'])->middleware('permission:pages.list');
     Route::post('/pages', [PageController::class, 'store'])->middleware('permission:pages.create');
     Route::get('/pages/{page}', [PageController::class, 'show'])->middleware('permission:pages.list');
-    Route::put('/pages/{page}', [PageController::class, 'update'])->middleware('permission:pages.edit');
-    Route::post('/pages/{page}', [PageController::class, 'update'])->middleware('permission:pages.edit'); // for file uploads
+    Route::post('/pages/{page}', [PageController::class, 'update'])->middleware('permission:pages.edit');
     Route::delete('/pages/{page}', [PageController::class, 'destroy'])->middleware('permission:pages.delete');
     Route::post('/pages/{id}/restore', [PageController::class, 'restore'])->middleware('permission:pages.restore');
 

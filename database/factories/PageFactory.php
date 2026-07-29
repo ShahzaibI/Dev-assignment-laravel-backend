@@ -17,7 +17,7 @@ class PageFactory extends Factory
             'cover_image'  => null,
             'status'       => 'published',
             'publish_date' => null,
-            'menu_id'      => null,
+            'menu_id'      => \App\Models\Menu::factory(),
             'created_by'   => null,
             'updated_by'   => null,
         ];

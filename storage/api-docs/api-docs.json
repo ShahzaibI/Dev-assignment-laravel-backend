@@ -425,7 +425,7 @@
                 "tags": [
                     "Pages"
                 ],
-                "summary": "Update a page (POST with _method=PUT for file upload)",
+                "summary": "Update a page",
                 "operationId": "1862700846cf4485b9db5b167b6708a2",
                 "parameters": [
                     {
@@ -442,10 +442,6 @@
                         "multipart/form-data": {
                             "schema": {
                                 "properties": {
-                                    "_method": {
-                                        "type": "string",
-                                        "example": "PUT"
-                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -458,6 +454,13 @@
                                             "draft",
                                             "published"
                                         ]
+                                    },
+                                    "publish_date": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "menu_id": {
+                                        "type": "integer"
                                     },
                                     "cover_image": {
                                         "type": "string",

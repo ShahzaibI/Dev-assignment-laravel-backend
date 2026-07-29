@@ -20,7 +20,25 @@ class PageRequest extends FormRequest
             'cover_image'  => ['nullable', 'image', 'max:2048'],
             'status'       => ['required', Rule::in(['draft', 'published'])],
             'publish_date' => ['nullable', 'date'],
-            'menu_id'      => ['nullable', 'exists:menus,id'],
+            'menu_id'      => ['required', 'exists:menus,id', Rule::unique('pages', 'menu_id')->ignore($pageId)->whereNull('deleted_at')],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'title.required'        => 'Page title is required.',
+            'title.max'             => 'Page title may not exceed 255 characters.',
+            'slug.unique'           => 'This slug is already in use by another page.',
+            'body.required'         => 'Page body content is required.',
+            'cover_image.image'     => 'Cover image must be a valid image file (jpeg, png, gif, etc.).',
+            'cover_image.max'       => 'Cover image may not exceed 2MB.',
+            'status.required'       => 'Page status is required.',
+            'status.in'             => 'Status must be either draft or published.',
+            'publish_date.date'     => 'Publish date must be a valid date.',
+            'menu_id.required'      => 'A menu must be assigned to this page.',
+            'menu_id.exists'        => 'The selected menu does not exist.',
+            'menu_id.unique'        => 'This menu is already assigned to another page.',
         ];
     }
 }

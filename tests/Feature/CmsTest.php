@@ -78,11 +78,14 @@ test('admin can list pages', function () {
 });
 
 test('admin can create a page', function () {
+    $menu = Menu::factory()->create();
+
     $this->actingAs(makeAdmin(), 'sanctum')
         ->postJson('/api/pages', [
-            'title'  => 'Test Page',
-            'body'   => '<p>Hello</p>',
-            'status' => 'draft',
+            'title'   => 'Test Page',
+            'body'    => '<p>Hello</p>',
+            'status'  => 'draft',
+            'menu_id' => $menu->id,
         ])
         ->assertStatus(201)
         ->assertJsonPath('data.title', 'Test Page');
@@ -92,10 +95,11 @@ test('admin can edit a page', function () {
     $page = Page::factory()->create();
 
     $this->actingAs(makeAdmin(), 'sanctum')
-        ->putJson("/api/pages/{$page->id}", [
-            'title'  => 'Updated Title',
-            'body'   => '<p>Updated</p>',
-            'status' => 'published',
+        ->postJson("/api/pages/{$page->id}", [
+            'title'   => 'Updated Title',
+            'body'    => '<p>Updated</p>',
+            'status'  => 'published',
+            'menu_id' => $page->menu_id,
         ])
         ->assertOk()
         ->assertJsonPath('data.title', 'Updated Title');
@@ -131,11 +135,14 @@ test('moderator can list pages', function () {
 });
 
 test('moderator can create a page', function () {
+    $menu = Menu::factory()->create();
+
     $this->actingAs(makeModerator(), 'sanctum')
         ->postJson('/api/pages', [
-            'title'  => 'Mod Page',
-            'body'   => '<p>Content</p>',
-            'status' => 'draft',
+            'title'   => 'Mod Page',
+            'body'    => '<p>Content</p>',
+            'status'  => 'draft',
+            'menu_id' => $menu->id,
         ])
         ->assertStatus(201);
 });
@@ -144,10 +151,11 @@ test('moderator can edit a page', function () {
     $page = Page::factory()->create();
 
     $this->actingAs(makeModerator(), 'sanctum')
-        ->putJson("/api/pages/{$page->id}", [
-            'title'  => 'Mod Edit',
-            'body'   => '<p>Edited</p>',
-            'status' => 'draft',
+        ->postJson("/api/pages/{$page->id}", [
+            'title'   => 'Mod Edit',
+            'body'    => '<p>Edited</p>',
+            'status'  => 'draft',
+            'menu_id' => $page->menu_id,
         ])
         ->assertOk();
 });
