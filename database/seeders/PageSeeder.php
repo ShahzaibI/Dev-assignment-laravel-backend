@@ -11,13 +11,15 @@ class PageSeeder extends Seeder
 {
     public function run(): void
     {
-        $menuIds = Menu::pluck('id');
+        $menus   = Menu::pluck('id');
         $userIds = User::pluck('id');
 
-        Page::factory(10)->create([
-            'menu_id'    => fn() => $menuIds->random(),
-            'created_by' => fn() => $userIds->random(),
-            'updated_by' => fn() => $userIds->random(),
-        ]);
+        $menus->each(function (int $menuId) use ($userIds) {
+            Page::factory()->create([
+                'menu_id'    => $menuId,
+                'created_by' => fn() => $userIds->random(),
+                'updated_by' => fn() => $userIds->random(),
+            ]);
+        });
     }
 }
