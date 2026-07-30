@@ -22,7 +22,7 @@ A headless CMS REST API built with Laravel 12, Sanctum authentication, Spatie ro
 | Roles & Permissions | Spatie Laravel Permission |
 | API Documentation | L5-Swagger (swagger-php v6) |
 | Testing | Pest PHP |
-| Database | MySQL (production) / SQLite in-memory (tests) |
+| Database | MySQL (production / tests) |
 
 ---
 
@@ -120,7 +120,7 @@ To authenticate in Swagger UI:
 
 ## Running Tests
 
-Tests use an SQLite in-memory database — no extra configuration needed.
+Tests run against a dedicated MySQL database (`cms_assignment_test`)
 
 ```bash
 php artisan test
@@ -219,7 +219,7 @@ Tests: 23 passed (33 assertions)
 ```
 app/
 ├── Http/
-│   ├── Controllers/Api/   # Thin controllers — try/catch + service call only
+│   ├── Controllers/Api/   # Thin controllers, try/catch + service call only
 │   ├── Requests/          # Form request validation with custom messages
 │   └── Resources/         # API resource transformers
 ├── Services/              # Business logic
@@ -243,7 +243,7 @@ All API responses follow a consistent envelope:
 ## Project Structure Notes
 
 - All Spatie roles and permissions use `guard_name = sanctum` (required for Sanctum token auth)
-- Pages support soft deletes — deleted pages can be restored via `POST /api/pages/{id}/restore`
+- Pages support soft deletes, deleted pages can be restored via `POST /api/pages/{id}/restore`
 - Each menu can only be assigned to one page (enforced at validation level)
 - Cover images are stored in `storage/app/public/covers` and served via the `public` disk
 - Scheduled publishing: pages with a future `publish_date` are not visible on the public endpoint even if `status = published`
