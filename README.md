@@ -32,7 +32,7 @@ A headless CMS REST API built with Laravel 12, Sanctum authentication, Spatie ro
 
 ```bash
 git clone <repository-url>
-cd backend
+cd <project-name>
 composer install
 ```
 
