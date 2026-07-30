@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Http\Resources\RoleResource;
 use App\Repositories\RoleRepository;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Spatie\Permission\Models\Role;
 
 class RoleService
@@ -17,7 +17,7 @@ class RoleService
         return RoleResource::collection($this->roleRepo->all());
     }
 
-    public function allPermissions(): Collection
+    public function allPermissions(): SupportCollection
     {
         return $this->roleRepo->allPermissions();
     }

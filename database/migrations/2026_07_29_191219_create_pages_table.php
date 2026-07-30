@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('pages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('menu_id')->constrained('menus')->nullOnDelete();
+            $table->foreignId('menu_id')->nullable()->constrained('menus')->nullOnDelete();
             $table->string('title');
             $table->string('slug')->unique();
             $table->longText('body');

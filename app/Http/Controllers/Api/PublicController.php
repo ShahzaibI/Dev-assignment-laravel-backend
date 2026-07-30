@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\MenuResource;
-use App\Http\Resources\PageResource;
 use App\Services\PublicService;
 use Illuminate\Http\JsonResponse;
 use OpenApi\Attributes as OA;
@@ -23,7 +21,7 @@ class PublicController extends Controller
     public function menus(): JsonResponse
     {
         try {
-            return api_response(MenuResource::collection($this->publicService->menuTree()));
+            return api_response($this->publicService->menuTree());
         } catch (\Throwable $e) {
             return api_response(null, $e->getMessage(), 500);
         }
@@ -42,7 +40,7 @@ class PublicController extends Controller
     public function page(string $slug): JsonResponse
     {
         try {
-            return api_response(new PageResource($this->publicService->publishedPage($slug)));
+            return api_response($this->publicService->publishedPage($slug));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException) {
             return api_response(null, 'Page not found', 404);
         } catch (\Throwable $e) {

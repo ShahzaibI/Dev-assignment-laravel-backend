@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RoleRequest;
-use App\Http\Resources\RoleResource;
 use App\Services\RoleService;
 use Illuminate\Http\JsonResponse;
 use OpenApi\Attributes as OA;
@@ -25,7 +24,7 @@ class RoleController extends Controller
     public function index(): JsonResponse
     {
         try {
-            return api_response(RoleResource::collection($this->roleService->all()));
+            return api_response($this->roleService->all());
         } catch (\Throwable $e) {
             return api_response(null, $e->getMessage(), 500);
         }
@@ -67,8 +66,7 @@ class RoleController extends Controller
     public function store(RoleRequest $request): JsonResponse
     {
         try {
-            $role = $this->roleService->create($request->name, $request->permissions ?? []);
-            return api_response(new RoleResource($role), 'Role created', 201);
+            return api_response($this->roleService->create($request->name, $request->permissions ?? []), 'Role created', 201);
         } catch (\Throwable $e) {
             return api_response(null, $e->getMessage(), 500);
         }
@@ -91,8 +89,7 @@ class RoleController extends Controller
     public function update(RoleRequest $request, Role $role): JsonResponse
     {
         try {
-            $role = $this->roleService->update($role, $request->name, $request->permissions ?? []);
-            return api_response(new RoleResource($role), 'Role updated');
+            return api_response($this->roleService->update($role, $request->name, $request->permissions ?? []), 'Role updated');
         } catch (\Throwable $e) {
             return api_response(null, $e->getMessage(), 500);
         }
