@@ -269,3 +269,47 @@ test('published page with no publish_date is visible on public endpoint', functi
 
     $this->getJson("/api/public/pages/{$page->slug}")->assertOk();
 });
+
+// ── Menu nesting validation ───────────────────────────────────────────────────
+
+test('admin cannot make a menu with children a child of another menu', function () {
+    $parent  = Menu::factory()->create();
+    $child   = Menu::factory()->create(['parent_id' => $parent->id]);
+    $another = Menu::factory()->create();
+
+    $this->actingAs(makeAdmin(), 'sanctum')
+        ->putJson("/api/menus/{$parent->id}", [
+            'name'      => $parent->name,
+            'parent_id' => $another->id,
+        ])
+        ->assertStatus(422)
+        ->assertJsonPath('errors.parent_id.0', 'A menu that has children cannot be nested under another menu.');
+});
+
+test('admin cannot nest a menu more than one level deep', function () {
+    $grandparent = Menu::factory()->create();
+    $parent      = Menu::factory()->create(['parent_id' => $grandparent->id]);
+    $newMenu     = Menu::factory()->create();
+
+    $this->actingAs(makeAdmin(), 'sanctum')
+        ->putJson("/api/menus/{$newMenu->id}", [
+            'name'      => $newMenu->name,
+            'parent_id' => $parent->id,
+        ])
+        ->assertStatus(422)
+        ->assertJsonPath('errors.parent_id.0', 'Cannot nest more than one level deep.');
+});
+
+test('admin can assign a top-level menu as parent', function () {
+    $parent  = Menu::factory()->create();
+    $newMenu = Menu::factory()->create();
+
+    $this->actingAs(makeAdmin(), 'sanctum')
+        ->putJson("/api/menus/{$newMenu->id}", [
+            'name'      => $newMenu->name,
+            'parent_id' => $parent->id,
+        ])
+        ->assertOk()
+        ->assertJsonPath('data.parent_id', $parent->id);
+});
+

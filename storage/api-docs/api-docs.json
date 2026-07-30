@@ -314,13 +314,6 @@
                         "schema": {
                             "type": "boolean"
                         }
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "schema": {
-                            "type": "integer"
-                        }
                     }
                 ],
                 "responses": {

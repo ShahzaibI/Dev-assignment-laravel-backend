@@ -16,7 +16,7 @@ class PageRepository
             ->when($request->menu_id, fn($q, $m) => $q->where('menu_id', $m))
             ->when($request->status,  fn($q, $s) => $q->where('status', $s))
             ->latest()
-            ->paginate($request->integer('per_page', 15));
+            ->paginate(10);
     }
 
     public function create(array $data): Page

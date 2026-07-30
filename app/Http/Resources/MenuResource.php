@@ -15,6 +15,12 @@ class MenuResource extends JsonResource
             'parent_id'  => $this->parent_id,
             'sort_order' => $this->sort_order,
             'children'   => MenuResource::collection($this->whenLoaded('children')),
+            'pages'      => $this->whenLoaded('pages', fn() => $this->pages->map(fn($p) => [
+                'id'          => $p->id,
+                'title'       => $p->title,
+                'slug'        => $p->slug,
+                'cover_image' => $p->cover_image ? asset('storage/' . $p->cover_image) : null,
+            ])->values()),
         ];
     }
 }

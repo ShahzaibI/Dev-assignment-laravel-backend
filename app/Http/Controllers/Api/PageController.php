@@ -25,7 +25,6 @@ class PageController extends Controller
             new OA\Parameter(name: 'menu_id',  in: 'query', schema: new OA\Schema(type: 'integer')),
             new OA\Parameter(name: 'status',   in: 'query', schema: new OA\Schema(type: 'string', enum: ['draft', 'published'])),
             new OA\Parameter(name: 'trashed',  in: 'query', schema: new OA\Schema(type: 'boolean')),
-            new OA\Parameter(name: 'per_page', in: 'query', schema: new OA\Schema(type: 'integer')),
         ],
         responses: [new OA\Response(response: 200, description: 'Paginated pages list')]
     )]

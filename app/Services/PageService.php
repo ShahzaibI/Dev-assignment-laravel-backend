@@ -40,6 +40,10 @@ class PageService
             $data['cover_image'] = $file->store('covers', 'public');
         }
 
+        if(!isset($data['publish_date']) || $data['publish_date'] === null) {
+            $data['publish_date'] = null;
+        }
+
         return new PageResource($this->pageRepo->update($page, $data));
     }
 

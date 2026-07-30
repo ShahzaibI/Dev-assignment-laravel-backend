@@ -17,8 +17,9 @@ class MenuRepository
 
     public function publicTree(): Collection
     {
-        return Menu::with(['children', 'pages' => fn($q) => $q->published()
-            ->select('id', 'title', 'slug', 'menu_id', 'cover_image'),
+        return Menu::with([
+            'pages' => fn($q) => $q->published()->select('id', 'title', 'slug', 'menu_id', 'cover_image'),
+            'children.pages' => fn($q) => $q->published()->select('id', 'title', 'slug', 'menu_id', 'cover_image'),
         ])->whereNull('parent_id')->orderBy('sort_order')->get();
     }
 
