@@ -1,4 +1,4 @@
-# Laravel CMS API
+# Nexus CMS — Laravel API
 
 A headless CMS REST API built with Laravel 12, Sanctum authentication, Spatie role/permission management, and Swagger documentation.
 
@@ -95,7 +95,15 @@ The API will be available at `http://localhost:8000`.
 | Role | Email | Password |
 |---|---|---|
 | Admin | `admin@cms.test` | `Option101#` |
+| Admin | `marcus.webb@cms.test` | `Option101#` |
+| Admin | `priya.nair@cms.test` | `Option101#` |
 | Moderator | `moderator@cms.test` | `Option101#` |
+| Moderator | `sofia.reyes@cms.test` | `Option101#` |
+| Moderator | `daniel.okafor@cms.test` | `Option101#` |
+| Moderator | `emma.hartmann@cms.test` | `Option101#` |
+| Moderator | `liam.fitzgerald@cms.test` | `Option101#` |
+
+> The seeder also downloads cover images from Unsplash for each page and stores them in `storage/app/public/covers/`. Ensure the server has outbound internet access when running `db:seed`, or the pages will be created without cover images (gracefully handled).
 
 ---
 
@@ -246,4 +254,5 @@ All API responses follow a consistent envelope:
 - Pages support soft deletes, deleted pages can be restored via `POST /api/pages/{id}/restore`
 - Each menu can only be assigned to one page (enforced at validation level)
 - Cover images are stored in `storage/app/public/covers` and served via the `public` disk
+- The `PageSeeder` downloads cover images from Unsplash at seed time using Laravel's `Http` facade; failures are caught silently so seeding never aborts
 - Scheduled publishing: pages with a future `publish_date` are not visible on the public endpoint even if `status = published`
