@@ -41,7 +41,8 @@ class MenuController extends Controller
             content: new OA\JsonContent(
                 required: ['name'],
                 properties: [
-                    new OA\Property(property: 'name',       type: 'string'),
+                    new OA\Property(property: 'name',       type: 'string',  description: 'Menu name (English)'),
+                    new OA\Property(property: 'name_ar',    type: 'string',  description: 'Menu name (Arabic) — optional'),
                     new OA\Property(property: 'parent_id',  type: 'integer'),
                     new OA\Property(property: 'sort_order', type: 'integer'),
                 ]
@@ -66,7 +67,8 @@ class MenuController extends Controller
         parameters: [new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
         requestBody: new OA\RequestBody(
             content: new OA\JsonContent(properties: [
-                new OA\Property(property: 'name',       type: 'string'),
+                new OA\Property(property: 'name',       type: 'string',  description: 'Menu name (English)'),
+                new OA\Property(property: 'name_ar',    type: 'string',  description: 'Menu name (Arabic) — optional'),
                 new OA\Property(property: 'parent_id',  type: 'integer'),
                 new OA\Property(property: 'sort_order', type: 'integer'),
             ])

@@ -18,8 +18,8 @@ class MenuRepository
     public function publicTree(): Collection
     {
         return Menu::with([
-            'pages' => fn($q) => $q->published()->select('id', 'title', 'slug', 'menu_id', 'cover_image'),
-            'children.pages' => fn($q) => $q->published()->select('id', 'title', 'slug', 'menu_id', 'cover_image'),
+            'pages' => fn($q) => $q->published()->select('id', 'title', 'title_ar', 'slug', 'menu_id', 'cover_image', 'publish_date'),
+            'children.pages' => fn($q) => $q->published()->select('id', 'title', 'title_ar', 'slug', 'menu_id', 'cover_image', 'publish_date'),
         ])->whereNull('parent_id')->orderBy('sort_order')->get();
     }
 

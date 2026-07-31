@@ -125,6 +125,11 @@
                                 ],
                                 "properties": {
                                     "name": {
+                                        "description": "Menu name (English)",
+                                        "type": "string"
+                                    },
+                                    "name_ar": {
+                                        "description": "Menu name (Arabic) — optional",
                                         "type": "string"
                                     },
                                     "parent_id": {
@@ -174,6 +179,11 @@
                             "schema": {
                                 "properties": {
                                     "name": {
+                                        "description": "Menu name (English)",
+                                        "type": "string"
+                                    },
+                                    "name_ar": {
+                                        "description": "Menu name (Arabic) — optional",
                                         "type": "string"
                                     },
                                     "parent_id": {
@@ -304,6 +314,7 @@
                             "type": "string",
                             "enum": [
                                 "draft",
+                                "scheduled",
                                 "published"
                             ]
                         }
@@ -341,23 +352,36 @@
                                 "required": [
                                     "title",
                                     "body",
-                                    "status"
+                                    "status",
+                                    "menu_id"
                                 ],
                                 "properties": {
                                     "title": {
+                                        "description": "Page title (English)",
+                                        "type": "string"
+                                    },
+                                    "title_ar": {
+                                        "description": "Page title (Arabic) — optional",
                                         "type": "string"
                                     },
                                     "body": {
+                                        "description": "Page body HTML (English)",
+                                        "type": "string"
+                                    },
+                                    "body_ar": {
+                                        "description": "Page body HTML (Arabic) — optional",
                                         "type": "string"
                                     },
                                     "status": {
                                         "type": "string",
                                         "enum": [
                                             "draft",
+                                            "scheduled",
                                             "published"
                                         ]
                                     },
                                     "publish_date": {
+                                        "description": "Required when status=scheduled",
                                         "type": "string",
                                         "format": "date-time"
                                     },
@@ -436,15 +460,26 @@
                             "schema": {
                                 "properties": {
                                     "title": {
+                                        "description": "Page title (English)",
+                                        "type": "string"
+                                    },
+                                    "title_ar": {
+                                        "description": "Page title (Arabic) — optional",
                                         "type": "string"
                                     },
                                     "body": {
+                                        "description": "Page body HTML (English)",
+                                        "type": "string"
+                                    },
+                                    "body_ar": {
+                                        "description": "Page body HTML (Arabic) — optional",
                                         "type": "string"
                                     },
                                     "status": {
                                         "type": "string",
                                         "enum": [
                                             "draft",
+                                            "scheduled",
                                             "published"
                                         ]
                                     },

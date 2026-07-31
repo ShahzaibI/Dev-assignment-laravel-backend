@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->string('slug')->unique();
             $table->longText('body');
             $table->string('cover_image')->nullable();
-            $table->enum('status', ['draft', 'published'])->default('draft');
+            $table->enum('status', ['draft', 'scheduled', 'published'])->default('draft');
             $table->timestamp('publish_date')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();

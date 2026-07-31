@@ -12,8 +12,10 @@ class PageResource extends JsonResource
         return [
             'id'           => $this->id,
             'title'        => $this->title,
+            'title_ar'     => $this->title_ar,
             'slug'         => $this->slug,
             'body'         => $this->body,
+            'body_ar'      => $this->body_ar,
             'cover_image'  => $this->cover_image ? asset('storage/' . $this->cover_image) : null,
             'status'       => $this->status,
             'publish_date' => $this->publish_date?->toISOString(),

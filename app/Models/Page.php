@@ -13,7 +13,7 @@ class Page extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'title', 'slug', 'body', 'cover_image',
+        'title', 'title_ar', 'slug', 'body', 'body_ar', 'cover_image',
         'status', 'publish_date', 'menu_id', 'created_by', 'updated_by',
     ];
 
@@ -47,7 +47,6 @@ class Page extends Model
 
     public function scopePublished($query)
     {
-        return $query->where('status', 'published')
-            ->where(fn($q) => $q->whereNull('publish_date')->orWhere('publish_date', '<=', now()));
+        return $query->where('status', 'published');
     }
 }

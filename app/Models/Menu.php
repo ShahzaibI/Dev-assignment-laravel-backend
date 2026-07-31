@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Menu extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'parent_id', 'sort_order'];
+    protected $fillable = ['name', 'name_ar', 'parent_id', 'sort_order'];
 
     public function parent(): BelongsTo
     {

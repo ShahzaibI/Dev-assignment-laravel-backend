@@ -14,6 +14,7 @@ class MenuRequest extends FormRequest
     {
         return [
             'name'       => ['required', 'string', 'max:255'],
+            'name_ar'    => ['nullable', 'string', 'max:255'],
             'parent_id'  => ['nullable', 'exists:menus,id'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ];

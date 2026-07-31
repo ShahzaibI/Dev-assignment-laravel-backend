@@ -23,7 +23,7 @@ class PageController extends Controller
         parameters: [
             new OA\Parameter(name: 'search',   in: 'query', schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'menu_id',  in: 'query', schema: new OA\Schema(type: 'integer')),
-            new OA\Parameter(name: 'status',   in: 'query', schema: new OA\Schema(type: 'string', enum: ['draft', 'published'])),
+            new OA\Parameter(name: 'status',   in: 'query', schema: new OA\Schema(type: 'string', enum: ['draft', 'scheduled', 'published'])),
             new OA\Parameter(name: 'trashed',  in: 'query', schema: new OA\Schema(type: 'boolean')),
         ],
         responses: [new OA\Response(response: 200, description: 'Paginated pages list')]
@@ -47,14 +47,16 @@ class PageController extends Controller
             content: new OA\MediaType(
                 mediaType: 'multipart/form-data',
                 schema: new OA\Schema(
-                    required: ['title', 'body', 'status'],
+                    required: ['title', 'body', 'status', 'menu_id'],
                     properties: [
-                        new OA\Property(property: 'title',        type: 'string'),
-                        new OA\Property(property: 'body',         type: 'string'),
-                        new OA\Property(property: 'status',       type: 'string', enum: ['draft', 'published']),
-                        new OA\Property(property: 'publish_date', type: 'string', format: 'date-time'),
+                        new OA\Property(property: 'title',        type: 'string',  description: 'Page title (English)'),
+                        new OA\Property(property: 'title_ar',     type: 'string',  description: 'Page title (Arabic) — optional'),
+                        new OA\Property(property: 'body',         type: 'string',  description: 'Page body HTML (English)'),
+                        new OA\Property(property: 'body_ar',      type: 'string',  description: 'Page body HTML (Arabic) — optional'),
+                        new OA\Property(property: 'status',       type: 'string',  enum: ['draft', 'scheduled', 'published']),
+                        new OA\Property(property: 'publish_date', type: 'string',  format: 'date-time', description: 'Required when status=scheduled'),
                         new OA\Property(property: 'menu_id',      type: 'integer'),
-                        new OA\Property(property: 'cover_image',  type: 'string', format: 'binary'),
+                        new OA\Property(property: 'cover_image',  type: 'string',  format: 'binary'),
                     ]
                 )
             )
@@ -97,12 +99,14 @@ class PageController extends Controller
             content: new OA\MediaType(
                 mediaType: 'multipart/form-data',
                 schema: new OA\Schema(properties: [
-                    new OA\Property(property: 'title',        type: 'string'),
-                    new OA\Property(property: 'body',         type: 'string'),
-                    new OA\Property(property: 'status',       type: 'string', enum: ['draft', 'published']),
-                    new OA\Property(property: 'publish_date', type: 'string', format: 'date-time'),
+                    new OA\Property(property: 'title',        type: 'string',  description: 'Page title (English)'),
+                    new OA\Property(property: 'title_ar',     type: 'string',  description: 'Page title (Arabic) — optional'),
+                    new OA\Property(property: 'body',         type: 'string',  description: 'Page body HTML (English)'),
+                    new OA\Property(property: 'body_ar',      type: 'string',  description: 'Page body HTML (Arabic) — optional'),
+                    new OA\Property(property: 'status',       type: 'string',  enum: ['draft', 'scheduled', 'published']),
+                    new OA\Property(property: 'publish_date', type: 'string',  format: 'date-time'),
                     new OA\Property(property: 'menu_id',      type: 'integer'),
-                    new OA\Property(property: 'cover_image',  type: 'string', format: 'binary'),
+                    new OA\Property(property: 'cover_image',  type: 'string',  format: 'binary'),
                 ])
             )
         ),
